@@ -13,14 +13,30 @@ def connect():
 
 def deleteMatches():
     """Remove all the match records from the database."""
+    conn = connect()
+    c = conn.cursor()
+    c.execute("delete from matches")
+    conn.commit()
+    conn.close()
 
 
 def deletePlayers():
     """Remove all the player records from the database."""
+    conn = connect()
+    c = conn.cursor()
+    c.execute("delete from players")
+    conn.commit()
+    conn.close()
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
+    conn = connect()
+    c = conn.cursor()
+    c.execute("select count(*) from players")
+    no_players = c.fetchone()[0]
+    return no_players
+    
 
 
 def registerPlayer(name):
@@ -32,6 +48,11 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("INSERT INTO players (name) VALUES (%s);",(name,))
+    conn.commit()
+    conn.close()
 
 
 def playerStandings():
@@ -47,6 +68,10 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("select * from standings")
+    return c.fetchall()
 
 
 def reportMatch(winner, loser):
@@ -56,6 +81,11 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("INSERT INTO matches (winner,loser) VALUES (%s,%s);",(winner,loser,))
+    conn.commit()
+    conn.close()
  
  
 def swissPairings():
@@ -73,5 +103,22 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("select * from standings")
+    pairings = []
+    i = 0
+    for row in c:
+	if i == 0:
+		id1 = row[0]
+		name1 = row[1]
+		i = 1
+	else:
+		id2 = row[0]
+		name2 = row[1]
+		pairings_tuple = (id1,name1,id2,name2)
+		pairings.append(pairings_tuple)
+		i = 0
 
-
+    return pairings
+	
